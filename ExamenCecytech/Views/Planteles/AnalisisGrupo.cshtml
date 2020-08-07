@@ -1,0 +1,32 @@
+﻿@model EstadisticaExamen[]
+
+
+@{await Html.RenderPartialAsync("AnalisisPreguntas", Model);}
+
+@section Scripts{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', { 'packages': ['corechart', 'bar'] });
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(function () {
+            @for (int i = 0; i < Model.Length; i++)
+            {
+
+            @for (int j=0;j<Model[i].Preguntas.Length;j++)
+            {
+                var preg = Model[i].Preguntas[j];
+                var resp = preg.Respuestas;
+                    @:var dataExAlPreg@(preg.NumeroPregunta) = new google.visualization.arrayToDataTable([['Letra', 'Frecuencia', { role: 'style' }], ['@resp[0].Letra', @resp[0].Frecuencia, '@(resp[0].Correcta ? "green" : "gray")'], ['@resp[1].Letra', @resp[1].Frecuencia, '@(resp[1].Correcta ? "green" : "gray")'], ['@resp[2].Letra', @resp[2].Frecuencia, '@(resp[2].Correcta ? "green" : "gray")'], ['@resp[3].Letra', @resp[3].Frecuencia, '@(resp[3].Correcta ? "green" : "gray")'],]);
+                    @:var chartExAlPreg@(preg.NumeroPregunta) = new google.visualization.ColumnChart(document.getElementById('@Model[i].PrefijoGraficas-@(preg.NumeroPregunta)'));
+                    @:chartExAlPreg@(preg.NumeroPregunta).draw(dataExAlPreg@(preg.NumeroPregunta), { title: 'Pregunta @preg.NumeroPregunta' });
+            }
+            }
+
+        });
+
+
+    </script>
+
+}

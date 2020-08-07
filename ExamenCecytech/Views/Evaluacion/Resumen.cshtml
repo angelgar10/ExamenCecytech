@@ -1,0 +1,206 @@
+﻿@model ResumenViewModel
+@using System.Net
+@{
+    ViewData["Title"] = "Resumen";
+}
+
+<div class="container">
+    <div class="row">
+        @await Html.PartialAsync("MenuLateralEvaluacion", (string)ViewBag.Accion)
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <div class="row">
+                <div class="col">
+                    <table style="text-align: center; " class="table table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; ">APELLIDO PATERNO</th style="text-align:>
+                                <th style="text-align: center; ">APELLIDO MATERNO</th>
+                                <th style="text-align: center; ">NOMBRE(S)</th>
+                                <th style="text-align: center; ">No. DE FOLIO/FICHA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Aspirante.Paterno</td>
+                                <td>@Model.Aspirante.Materno</td>
+                                <td>@Model.Aspirante.Nombre</td>
+                                <td>@Model.Aspirante.Ficha</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4">
+                    <table class="table table-bordered table-condensed" style="vertical-align: middle;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; " colspan="4">G&eacute;nero</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Masculino</td>
+                                <td style="text-align: center; ">@Html.Raw(Model.Aspirante.Genero == "M" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                                <td>Femenino</td>
+                                <td style="text-align: center; ">@Html.Raw(Model.Aspirante.Genero == "F" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-xs-4">
+                    <table class="table table-bordered table-condensed" style="text-align: center; vertical-align: middle;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; ">Edad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Aspirante.Edad.ToString("0")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-xs-4">
+                    <table class="table table-bordered table-condensed" style="text-align: center; vertical-align: middle;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; ">Promedio Secundaria</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Aspirante.PromedioSecundaria.ToString("0")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <table class="table table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Nombre del plantel educativo de procedencia (secundaria)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Aspirante.NombreSecundaria</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <p>Marca con <i class="glyphicon glyphicon-remove"></i></p>
+                <div class="col-xs-6">
+                    <table class="table table-bordered table-condensed" style="vertical-align: middle;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; vertical-align: middle;" colspan="5">Tipo de Secundaria</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Secundaria General</td>
+                                <td>@Html.Raw(Model.Aspirante.TipoSecundaria == "SECUNDARIA GENERAL" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                                <td></td>
+                                <td>Secundaria Comunitaria</td>
+                                <td>@Html.Raw(Model.Aspirante.TipoSecundaria == "SECUNDARIA COMUNITARIA" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                            </tr>
+                            <tr>
+                                <td>Secundaria T&eacute;cnica</td>
+                                <td>@Html.Raw(Model.Aspirante.TipoSecundaria == "SECUNDARIA TECNICA" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                                <td></td>
+                                <td>Telesecundaria</td>
+                                <td>@Html.Raw(Model.Aspirante.TipoSecundaria == "TELESECUNDARIA" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                            </tr>
+                            <tr>
+                                <td>Secundaria para Trabajadores</td>
+                                <td>@Html.Raw(Model.Aspirante.TipoSecundaria == "SECUNDARIA PARA TRABAJADORES" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                                <td></td>
+                                <td>Otra</td>
+                                <td>@Html.Raw(Model.Aspirante.TipoSecundaria == "OTRA" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-xs-6">
+                    <table class="table table-bordered table-condensed" style="vertical-align: middle;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; vertical-align: middle;" colspan="2">Sostenimiento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Federal</td>
+                                <td>@Html.Raw(Model.Aspirante.TipoSostenimientoSecundaria == "FEDERAL" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                            </tr>
+                            <tr>
+                                <td>Estatal</td>
+                                <td>@Html.Raw(Model.Aspirante.TipoSostenimientoSecundaria == "ESTATAL" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                            </tr>
+                            <tr>
+                                <td>Particular (RVOE)</td>
+                                <td>@Html.Raw(Model.Aspirante.TipoSostenimientoSecundaria == "PARTICULAR (RVOE)" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h5>Instrucciones:</h5>
+                    <ol>
+                        <li>Usa solamente lápiz, no uses pluma ni marcadores.</li>
+                        <li>Llena totalmente los círculos, no hagas ninguna marca fuera de ellos.</li>
+                        <li>Si te equivocas borra completamente la respuesta.</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <table class="table table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <th>COMPETENCIA </th>
+                                <th>NUM PREGUNTA</th>
+                                <th>A</th>
+                                <th>B</th>
+                                <th>C</th>
+                                <th>D</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.RespuestasEvaluacion)
+                            {
+                                <tr>
+                                    <td>@(item.CompetenciaId)</td>
+                                    <td>@item.Pregunta.NumeroPregunta</td>
+                                    @if (item.RespuestaPregunta == null)
+                                    {
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+}
+                                    else
+                                    {
+                                        <td>@Html.Raw(item.RespuestaPregunta.ClaveCOSDAC == "A" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                                        <td>@Html.Raw(item.RespuestaPregunta.ClaveCOSDAC == "B" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                                        <td>@Html.Raw(item.RespuestaPregunta.ClaveCOSDAC == "C" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                                        <td>@Html.Raw(item.RespuestaPregunta.ClaveCOSDAC == "D" ? "<i class=\"glyphicon glyphicon-remove\"></i>" : "")</td>
+                                    }
+
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

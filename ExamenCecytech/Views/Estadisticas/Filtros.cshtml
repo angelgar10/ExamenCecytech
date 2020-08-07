@@ -1,0 +1,1227 @@
+﻿
+@{ ViewData["Title"] = "Filtros"; }
+<style type="text/css">
+    .filtro {
+        background-color: white;
+        text-anchor: middle;
+    }
+
+    .filtroSeleccionado {
+        background-color: cornflowerblue;
+        text-anchor: middle;
+    }
+</style>
+<h2>Estadistica con Filtros</h2>
+<hr />
+<div class="row">
+    <div class="col col-sm-3" id="divGenero">
+        Genero
+        <div id="divFiltroGenero"></div>
+    </div>
+    <div class="col col-sm-3" id="divSemestre">
+        Semestre
+    </div>
+    <div class="col col-sm-3" id="divTurno">
+        Turno
+    </div>
+    <div class="col col-sm-3" id="divTipo">
+        Tipo
+    </div>
+
+</div>
+<div class="row">
+    <div class="col" id="divFiltroPlantel">
+    </div>
+</div>
+<div class="row">
+    <div id="divCecyt" class="col-12 col-md-6">
+
+    </div>
+    <div id="divEmsad" class="col-12 col-md-6"></div>
+</div>
+<div class="row">
+    <div class="col-12 col-md-6">
+        <div class="col-12" id="divRespLenguaje">
+            Respuestas - Lenguaje y Comunicaci&oacute;n
+        </div>
+        <div class="col-12" id="divLengTextoExpositivo">
+            Respuestas - Lenguaje y Comunicaci&oacute;n - Texto Expositivo
+        </div>
+        <div class="col-12" id="divLengTextoArgumentativo">
+            Respuestas - Lenguaje y Comunicaci&oacute;n - Texto Argumentativo
+        </div>
+        <div class="col-12" id="divLengTextoLiterario">
+            Respuestas - Lenguaje y Comunicaci&oacute;n - Texto Literario
+        </div>
+        <div class="col-12" id="divLengManejo">
+            Respuestas - Lenguaje y Comunicaci&oacute;n - Manejo de la Informaci&oacute;n
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div id="divRespMatematicas">
+            Respuestas - Matem&aacute;ticas
+        </div>
+        <div id="divMatSentido">
+            Respuestas - Matem&aacute;ticas - Sentido Numérico y pensamiento algebráico
+        </div>
+        <div id="divMatCambio">
+            Respuestas - Matem&aacute;ticas - Cambios y Relaciones
+        </div>
+        <div id="divMatForma">
+            Respuestas - Matem&aacute;ticas - Forma, espacio y medida
+        </div>
+        <div id="divMatManejo">
+            Respuestas - Matem&aacute;ticas - Manejo de la información
+        </div>
+    </div>
+</div>
+<hr />
+<div id="divCargando" style="height:100%;width:100%;background:white;pointer-events:none; display:none;position:absolute;opacity:0.7">
+    <div class="col center-block">
+        <img style="width:100%;height:100%" src="~/images/Cargando.gif" alt="Cargando Datos..." />
+    </div>
+</div>
+<div id="divTooltip" style="background:white;pointer-events:none; display:none;position:absolute;opacity:0.85">
+
+</div>
+@section Scripts{
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+    <script>$(document).ready(function () {
+            'use strict';
+
+            var formatNum = d3.format(',.0f');
+            var formatPor = d3.format(",.2f");
+            var piechartSemestre;
+            var piechartGenero;
+            var piechartTipo;
+            var cecytBarChart;
+            var emsadBarChart;
+            var filtroGenero = filtro().div('#divFiltroGenero');
+            var filtroPlantel = filtro().div('#divFiltroPlantel');
+
+
+            var lstPlanteles;
+            var plantel = [];
+            var genero = [];
+            var tipo = [];
+            var turno = [];
+            var semestre = [];
+            var resumen;
+
+            actualizarDatos();
+
+            function filtro() {
+                var _filtro = {},
+                    _valores = [], // Valores del filtro, tienen que tener la forma valor, seleccionado
+                    _div,// div donde se desplegara el filtro
+                    _botonActualizar
+                    ;
+
+                _filtro.valores = function (x) {
+                    if (!arguments.length) return _valores;
+                    _valores = x;
+                    return _filtro;
+                };
+
+                _filtro.div = function (x) {
+                    if (!arguments.length) return _div;
+                    _div = x;
+                    return _filtro;
+                };
+
+                _filtro.render = function render() {
+                    var filtros = d3.select(_div).selectAll('div.filtro').data(_valores);
+
+                    filtros.enter()
+                        .append('div')
+                        .attr('class', 'filtro col-sm-1')
+                        .on('click', function (d) {
+                            console.log('_valores',_valores);
+                            var val = _valores.map(function (x) { return x.valor}).indexOf(d.valor);
+                            console.log(val);
+                            if (val != -1) {
+                                _valores[val].seleccionado = !_valores[val].seleccionado;
+                                d3.select(this).classed('filtroSeleccionado', _valores[val].seleccionado);
+                            }
+                        })
+                        .merge(filtros)
+                        .classed('filtroSeleccionado', function (d) { return d.seleccionado; })
+                        .text(function (d) { return d.valor })
+                        .exit()
+                        .remove()
+                        ;
+
+                    if (_botonActualizar === undefined) {
+                        _botonActualizar = d3.select(_div)
+                            .append('div').attr('class','col-sm-12')
+                            .append('btn')
+                            .on('click', function (d) { actualizarDatos()})
+                            .attr('class', 'btn btn-secondary')
+                            //.attr('onclick', 'actualizarDatos();')
+                            .text("Aplicar Filtro");
+                    }
+                }
+
+                return _filtro;
+
+            }
+
+            function mostrarCargando() {
+                //var elmnt = document.get.getElementById("divCargando");
+
+                var divCargando = d3.select('#divCargando');
+
+                divCargando.style('width',
+                    window.innerWidth
+                )
+                    .style('heigth',
+                        window.innerHeight
+                    )
+                    .style('display', 'inline')
+                    .style('left', 0 + 'px')
+                    .style('top', 0 + 'px')
+                    ;
+            }
+
+            function ocultarCargando() {
+                var divCargando = d3.select('#divCargando');
+
+                divCargando
+                    .style('display', 'none')
+                    ;
+
+            }
+
+            function actualizarDatos() {
+                mostrarCargando();
+                /* Cargar Informacion y formatearla */
+                var dataResumen = d3.json(
+                    'Resumen'
+                    , {
+                        method: "GET",
+                        headers:
+                        {
+                            //"Content-type": "application/json; charset=UTF-8",
+                            //"plantel": plantel,
+                            "plantel": filtroPlantel.valores().filter(function (d) { return d.seleccionado; }).map(function (d) { return d.valor }),
+                            "genero": genero,
+                            "tipo": tipo,
+                            "turno": turno,
+                            "semestre": semestre
+                        }
+                    }
+                ).then(function (data) { return data; });
+
+
+                Promise.all([dataResumen]).then(function (respuesta) {
+                    resumen = respuesta[0];
+                    //plantel = resumen.plantel.filter(function (x) { return x.incluidoEnFiltro }).map(function (d) { return d.plantel });
+                    //genero = resumen.genero.filter(function (x) { return x.incluidoEnFiltro }).map(function (d) { return d.genero });
+                    ////tipo = resumen.tipo.filter(function (x) { return x.incluidoEnFiltro }).map(function (d) { return d.tipo });
+                    //turno = resumen.turno.filter(function (x) { return x.incluidoEnFiltro }).map(function (d) { return d.turno });
+                    //semestre = resumen.semestre.filter(function (x) { return x.incluidoEnFiltro }).map(function (d) { return d.semestre });
+
+                    ocultarCargando();
+
+                    actualizarGraficas();
+                });
+                /* FIN - Cargar Informacion y formatearla */
+
+
+            };
+
+            function actualizarGraficas() {
+                //dibujarInfoPlanteles();
+
+                // Inicializar Filtros
+                //filtroGenero.valores(resumen.genero.map(function (d) {
+                //    return { 'valor': d.genero, 'seleccionado': d.incluidoEnFiltro };
+                //}))
+                //    .render();
+
+                filtroPlantel.valores(resumen.plantel.map(function (d) {
+                    return { 'valor': d.plantel, 'seleccionado': d.incluidoEnFiltro };
+                }))
+                    .render();
+
+                dibujarPieGenero();
+                dibujarPieSemestre();
+                dibujarPieTurno();
+                dibujarPieTipo();
+                dibujarEvaluacionesPlantel();
+                dibujarPreguntas('Lenguaje y Comunicación', '#divRespLenguaje');
+                dibujarPregAreaAspecto('Lenguaje y Comunicación', 'Texto Expositivo', '#divLengTextoExpositivo')
+                dibujarPregAreaAspecto('Lenguaje y Comunicación', 'Texto Argumentativo', '#divLengTextoArgumentativo')
+                dibujarPregAreaAspecto('Lenguaje y Comunicación', 'Texto Literario', '#divLengTextoLiterario')
+                dibujarPregAreaAspecto('Lenguaje y Comunicación', 'Manejo de la Información', '#divLengManejo')
+                dibujarPreguntas('Matemáticas', '#divRespMatematicas')
+                dibujarPregAreaAspecto('Matemáticas', 'Sentido Numérico y pensamiento algebráico', '#divMatSentido')
+                dibujarPregAreaAspecto('Matemáticas', 'Cambios y Relaciones', '#divMatCambio')
+                dibujarPregAreaAspecto('Matemáticas', 'Forma, espacio y medida', '#divMatForma')
+                dibujarPregAreaAspecto('Matemáticas', 'Manejo de la información', '#divMatManejo')
+            };
+
+            function dibujarPieGenero() {
+                piechartGenero = pieChart()
+                    .width(250)
+                    .height(250)
+                    .div('#divGenero')
+                    .data(resumen.genero.map(function (d) { return { 'id': d.genero, 'value': d.cantidad }; }))
+                    .colors(d3.scaleOrdinal()
+                        .domain(['F', 'M', ''])
+                        .range(['pink', 'blue', 'gray'])
+                    )
+                    .onclick(function (d) {
+                        if (genero.includes(d.data.id)) {
+                            genero = genero.filter((g) => { return g != d.data.id });
+                        } else {
+                            genero.push(d.data.id);
+                        }
+                        actualizarDatos();
+                    })
+                    .render();
+            }
+
+            function dibujarPieSemestre() {
+
+                piechartSemestre = pieChart()
+                    .width(250)
+                    .height(250)
+                    .div('#divSemestre')
+                    .data(resumen.semestre.map(function (d) { return { 'id': d.semestre, 'value': d.cantidad }; }))
+                    .onclick(function (d) {
+                        if (semestre.includes(d.data.id)) {
+                            semestre = semestre.filter((g) => { return g != d.data.id });
+                        } else {
+                            semestre.push(d.data.id);
+                        }
+                        actualizarDatos();
+                    })
+                    .render();
+
+            }
+
+            function dibujarPieTurno() {
+
+                piechartSemestre = pieChart()
+                    .width(250)
+                    .height(250)
+                    .div('#divTurno')
+                    .data(resumen.turno.map(function (d) { return { 'id': d.turno, 'value': d.cantidad }; }))
+                    .onclick(function (d) {
+                        if (turno.includes(d.data.id)) {
+                            turno = turno.filter((g) => { return g != d.data.id });
+                        } else {
+                            turno.push(d.data.id);
+                        }
+                        actualizarDatos();
+                    })
+                    .render();
+
+            }
+
+            function dibujarPieTipo() {
+
+                piechartTipo = pieChart()
+                    .width(250)
+                    .height(250)
+                    .div('#divTipo')
+                    .data(resumen.tipo.map(function (d) { return { 'id': d.tipo, 'value': d.cantidad }; }))
+                    .onclick(function (d) {
+                        if (tipo.includes(d.data.id)) {
+                            tipo = tipo.filter((g) => { return g != d.data.id });
+                        } else {
+                            tipo.push(d.data.id);
+                        }
+                        actualizarDatos();
+                    })
+                    .render();
+
+            }
+
+            function dibujarInfoPlanteles() {
+                // div planteles
+                var divPlanteles = d3.select('#divPlantel').selectAll('div.plantel').data(resumen.plantel);
+                var scalePlanteles = d3.scaleOrdinal().domain(resumen.plantel.map((d) => d.plantel)).range(d3.schemeSet3);
+                var scaleCantidad = d3.scaleLinear()
+                    .domain(d3.extent(resumen.plantel.map(function (d) { return d.cantidad })))
+                    .range([0, 100]);
+                //console.log(d3.extent(resumen.plantel.map(function (d) { return d.cantidad })));
+
+                divPlanteles.enter()
+                    .append('div')
+                    .attr('class', 'plantel')
+                    //.classed('btn',true)
+                    .each(function (d, i) {
+                        d3.select(this).append('i');
+
+                        d3.select(this).append('div')
+                            .on('click', function (d) {
+                                if (plantel.includes(d.plantel)) {
+                                    plantel = plantel.filter((g) => { return g != d.plantel });
+                                } else {
+                                    plantel.push(d.plantel);
+                                }
+                                actualizarDatos();
+                            })
+                            .classed('nomPlantel', true);
+
+                        d3.select(this)
+                            .append('div')
+                            .classed('cantidadPlantel', true)
+                            .style('background-color', (d) => {
+                                return scalePlanteles(d.plantel)
+                            });
+                    })
+                    .merge(divPlanteles)
+                    .each(function (d, i) {
+                        d3.select(this).select('i')
+                            .attr('class', function (d) {
+                                if (plantel.includes(d.plantel)) {
+                                    return 'glyphicon glyphicon-ok text-success';
+                                } else {
+                                    return 'glyphicon glyphicon-remove text-danger';
+                                }
+                            })
+
+                        d3.select(this).select('div.nomPlantel')
+                            .text(d.plantel);
+
+                        d3.select(this)
+                            .select('div.cantidadPlantel')
+                            .style('width', function () { return scaleCantidad(d.cantidad) + '%'; })
+                            .style('background-color', (d) => {
+                                return scalePlanteles(d.plantel)
+                            })
+                            .text(d.cantidad);
+                    })
+                    .exit().remove()
+                    ;
+
+            }
+
+            function dibujarEvaluacionesPlantel() {
+
+                var arrayCecyt = resumen.plantel.filter(function (d) { return d.plantel[0] == 'C' }).map(function (d) {
+                    return { 'x': d.plantel, 'y': d.cantidad };
+                });
+
+                var arrayEmsad = resumen.plantel.filter(function (d) { return d.plantel[0] == 'E' }).map(function (d) {
+                    return { 'x': d.plantel, 'y': d.cantidad };
+                });
+
+
+
+                var divCecyt = d3.select('#divCecyt');
+                divCecyt.selectAll('*').remove();
+                cecytBarChart = barChart()
+                    .div('#divCecyt')
+                    .width(divCecyt.style('width').replace('px', ''))
+                    .height(divCecyt.style('width').replace('px', '') * .67)
+                    .x(
+                        d3.scaleBand()
+                            .domain(arrayCecyt.map(function (k) { return k.x; }))
+                            .padding(0.05)
+
+                    )
+                    .y(
+                        d3.scaleLinear()
+                            .domain(
+                                [
+                                    0
+                                    ,
+                                    d3.max(arrayCecyt.map(function (k) { return k.y }))
+                                ])
+
+                    )
+                    .colors(
+                        d3.scaleOrdinal()
+                            .domain(arrayCecyt.map(function (k) { return k.x }))
+                            .range(d3.schemeSet3)
+                    )
+                    .setSeries(arrayCecyt
+                    )
+                    .render();
+
+
+                var divEmsad = d3.select('#divEmsad');
+                divEmsad.selectAll('*').remove();
+                emsadBarChart = barChart()
+                    .div('#divEmsad')
+                    .width(divEmsad.style('width').replace('px', ''))
+                    .height(divEmsad.style('width').replace('px', '') * .67)
+                    .x(
+                        d3.scaleBand()
+                            .domain(arrayEmsad.map(function (k) { return k.x; }))
+                            .padding(0.05)
+                    )
+                    .y(
+                        d3.scaleLinear()
+                            .domain(
+                                [
+                                    0
+                                    ,
+                                    d3.max(arrayEmsad.map(function (k) { return k.y }))
+                                ])
+                    )
+                    .colors(
+                        d3.scaleOrdinal()
+                            .domain(arrayEmsad.map(function (k) { return k.x }))
+                            .range(d3.schemeSet3)
+                    )
+                    .setSeries(arrayEmsad
+                    )
+                    .render();
+
+            }
+
+            function dibujarPreguntas(area, divRespuestas) {
+
+                var preguntas = resumen
+                    .preguntas
+                    .filter(function (d) {
+                        return d.competencia == area;
+                    })
+                    .map(function (d) {
+                        return {
+                            'x': d.numeroPregunta,
+                            'y': d.porcErroneas,
+                            'a': d.porcCorrectas,
+                            'b': d.porcErroneas,
+                            'c': d.porcSinContestar,
+                            'area': d.competencia,
+                            'aspecto': d.aspectoEvaluado,
+                            'clave': d.claveCorrecta,
+                            'numCorrectas': d.numCorrectas,
+                            'numErroneas': d.numErroneas,
+                            'numSinContestar': d.numSinContestar,
+                            'porcCorrectas': d.porcCorrectas,
+                            'porcErroneas': d.porcErroneas,
+                            'porcSinContestar': d.porcSinContestar
+                        };
+                    });
+
+                var divResp = d3.select(divRespuestas);
+                divResp.selectAll('*').remove();
+                var pregBarchart = barChartApilada()
+                    .div(divRespuestas)
+                    .width(divResp.style('width').replace('px', ''))
+                    .height(divResp.style('width').replace('px', '') * .67)
+                    .x(
+                        d3.scaleBand()
+                            .domain(preguntas.map(function (k) { return k.x; }))
+                            .padding(0.05)
+                    )
+                    .y(d3.scaleLinear().domain([0, 100]))
+                    .colors(
+                        d3.scaleOrdinal()
+                            .domain(preguntas.map(function (k) { return k.aspecto }))
+                            .range(d3.schemeSet3)
+                    )
+                    .setSeries(preguntas)
+                    .render();
+            }
+
+            function dibujarPregAreaAspecto(area, aspecto, divRespuestas) {
+
+                var preguntas = resumen
+                    .preguntas
+                    .filter(function (d) {
+                        return (d.competencia == area && d.aspectoEvaluado == aspecto);
+                    })
+                    .map(function (d) {
+                        return {
+                            'x': d.numeroPregunta,
+                            'y': d.porcErroneas,
+                            'a': d.porcCorrectas,
+                            'b': d.porcErroneas,
+                            'c': d.porcSinContestar,
+                            'area': d.competencia,
+                            'aspecto': d.aspectoEvaluado,
+                            'clave': d.claveCorrecta,
+                            'numCorrectas': d.numCorrectas,
+                            'numErroneas': d.numErroneas,
+                            'numSinContestar': d.numSinContestar,
+                            'porcCorrectas': d.porcCorrectas,
+                            'porcErroneas': d.porcErroneas,
+                            'porcSinContestar': d.porcSinContestar
+                        };
+                    });
+
+                //console.log(preguntas);
+                var divResp = d3.select(divRespuestas);
+                divResp.selectAll('*').remove();
+                var pregBarchart = barChartApilada()
+                    .div(divRespuestas)
+                    .width(divResp.style('width').replace('px', ''))
+                    .height(divResp.style('width').replace('px', '') * .67)
+                    .x(
+                        d3.scaleBand()
+                            .domain(preguntas.map(function (k) { return k.x; }))
+                            .padding(0.05)
+                    )
+                    .y(d3.scaleLinear().domain([0, 100]))
+                    .colors(
+                        d3.scaleOrdinal()
+                            .domain(preguntas.map(function (k) { return k.aspecto }))
+                            .range(d3.schemeSet3)
+                    )
+                    .setSeries(preguntas)
+                    .render();
+            };
+
+            function pieChart() {
+                var _chart = {};
+
+                var _width = 500, _height = 500,
+                    _data = [],
+                    _colors = d3.scaleOrdinal(d3.schemeCategory10),
+                    _svg,
+                    _bodyG,
+                    _pieG,
+                    _radius = d3.min([_width, _height]) / 2,
+                    _innerRadius = _radius * .40,
+                    _duration = 1000,
+                    _onclick,
+                    _div = '';
+
+
+                _chart.render = function () {
+                    _radius = d3.min([_width, _height]) / 2;
+                    _innerRadius = _radius * .40;
+                    _svg = d3.select(_div).select('svg');
+                    if (_svg.empty()) {
+                        _svg = d3.select(_div).append("svg")
+                            .attr("height", _height)
+                            .attr("width", _width);
+                    }
+
+                    renderBody(_svg);
+                };
+
+                function renderBody(svg) {
+                    if (!_bodyG)
+                        _bodyG = svg.append("g")
+                            .attr("class", "body");
+
+                    renderPie();
+                }
+
+                function renderPie() {
+                    var pie = d3.pie() // <-A
+                        .sort(function (d) {
+                            return d.id;
+                        })
+                        .value(function (d) {
+                            return d.value;
+                        });
+
+                    var arc = d3.arc()
+                        .outerRadius(_radius)
+                        .innerRadius(_innerRadius);
+
+                    if (!_pieG)
+                        _pieG = _bodyG.append("g")
+                            .attr("class", "pie")
+                            .attr("transform", "translate("
+                                + _radius
+                                + ","
+                                + _radius + ")");
+
+                    renderSlices(pie, arc);
+
+                    renderLabels(pie, arc);
+                }
+
+                function renderSlices(pie, arc) {
+                    var slices = _pieG.selectAll("path.arc")
+                        .data(pie(_data)); // <-B
+
+                    slices.enter()
+                        .append("path")
+                        .merge(slices)
+                        .attr("class", "arc")
+                        .attr("fill", function (d, i) {
+                            return _colors(i);
+                        })
+                        .on('click', _onclick)
+                        .transition()
+                        .duration(_duration)
+                        .attrTween("d", function (d) {
+                            var currentArc = this.__current__; // <-C
+
+                            if (!currentArc)
+                                currentArc = {
+                                    startAngle: 0,
+                                    endAngle: 0
+                                };
+
+                            var interpolate = d3.interpolate(
+                                currentArc, d);
+
+                            this.__current__ = interpolate(1);//<-D
+
+                            return function (t) {
+                                return arc(interpolate(t));
+                            };
+                        });
+                }
+
+                function renderLabels(pie, arc) {
+                    var labels = _pieG.selectAll("text.label")
+                        .data(pie(_data)); // <-E
+
+                    labels.enter()
+                        .append("text")
+                        .merge(labels)
+                        .attr("class", "label")
+                        .transition()
+                        .duration(_duration)
+                        .attr("transform", function (d) {
+                            return "translate("
+                                + arc.centroid(d) + ")"; // <-F
+                        })
+                        .attr("dy", ".35em")
+                        .attr("text-anchor", "middle")
+                        .text(function (d) {
+                            return d.data.id + ' ( ' + d.data.value + ' )';
+                        });
+                }
+
+                _chart.width = function (w) {
+                    if (!arguments.length) return _width;
+                    _width = w;
+                    return _chart;
+                };
+
+                _chart.height = function (h) {
+                    if (!arguments.length) return _height;
+                    _height = h;
+                    return _chart;
+                };
+
+                _chart.colors = function (c) {
+                    if (!arguments.length) return _colors;
+                    _colors = c;
+                    return _chart;
+                };
+
+                _chart.radius = function (r) {
+                    if (!arguments.length) return _radius;
+                    _radius = r;
+                    return _chart;
+                };
+
+                _chart.innerRadius = function (r) {
+                    if (!arguments.length) return _innerRadius;
+                    _innerRadius = r;
+                    return _chart;
+                };
+
+                _chart.data = function (d) {
+                    if (!arguments.length) return _data;
+                    _data = d;
+                    return _chart;
+                };
+
+                _chart.onclick = function (d) {
+                    if (!arguments.length) return _onclick;
+                    _onclick = d;
+                    return _chart;
+                };
+
+                _chart.div = function (d) {
+                    if (!arguments.length) return _div;
+                    _div = d;
+                    return _chart;
+                };
+
+                return _chart;
+            }
+
+            function barChart() {
+                var _chart = {};
+
+                var _width = 600, _height = 250,
+                    _margins = { top: 30, left: 30, right: 30, bottom: 30 },
+                    _x, _y,
+                    _data = [],
+                    _colors = d3.scaleOrdinal(d3.schemeSet3),
+                    _svg,
+                    _bodyG,
+                    _div;
+
+                _chart.render = function () {
+                    _svg = d3.select(_div).select('svg');
+                    if (_svg.empty()) {
+                        _svg = d3.select(_div).append("svg")
+                            .attr("height", _height)
+                            .attr("width", _width);
+
+                        renderAxes(_svg);
+
+                        defineBodyClip(_svg);
+                    }
+
+                    renderBody(_svg);
+                };
+
+                function renderAxes(svg) {
+                    var axesG = svg.append("g")
+                        .attr("class", "axes");
+
+                    var xAxis = d3.axisBottom()
+                        .scale(_x.range([0, quadrantWidth()]));
+
+                    var yAxis = d3.axisLeft()
+                        .scale(_y.range([quadrantHeight(), 0]));
+
+                    axesG.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", function () {
+                            return "translate(" + xStart() + "," + yStart() + ")";
+                        })
+                        .call(xAxis);
+
+                    axesG.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", function () {
+                            return "translate(" + xStart() + "," + yEnd() + ")";
+                        })
+                        .call(yAxis);
+                }
+
+                function defineBodyClip(svg) {
+                    var padding = 5;
+
+                    svg.append("defs")
+                        .append("clipPath")
+                        .attr("id", _div.replace('#', '') + "-clip")
+                        .append("rect")
+                        .attr("x", 0)
+                        .attr("y", 0)
+                        .attr("width", quadrantWidth())
+                        .attr("height", quadrantHeight());
+                }
+
+                function renderBody(svg) {
+                    if (!_bodyG)
+                        _bodyG = svg.append("g")
+                            .attr("class", "body")
+                            .attr("transform", "translate("
+                                + xStart()
+                                + ","
+                                + yEnd() + ")")
+                            .attr("clip-path", "url(" + _div + "-clip)");
+
+                    renderBars();
+                }
+
+                function renderBars() {
+                    var padding = Math.floor(quadrantWidth() / _data.length) * .05; // <-A
+
+                    var bars = _bodyG.selectAll("rect.bar")
+                        .data(_data);
+                    bars.enter()
+                        .append("rect") // <-B
+                        .on('mouseover', function (d) {
+                            var divTooltip = d3.select('#divTooltip');
+                            divTooltip
+                                .style('heigth', '100px')
+                                .style('width', '100px')
+                                .style('left', d3.event.pageX + 5 + 'px')
+                                .style('top', d3.event.pageY + 5 + 'px')
+                                .style('display', 'inline');
+
+                            divTooltip.text(d.x + ' - ' + formatNum(d.y));
+                        })
+                        .on('mouseout', function (d) {
+                            var divTooltip = d3.select('#divTooltip');
+                            divTooltip.style('display', 'none');
+                        })
+                        .merge(bars)
+                        .attr("class", "bar")
+                        .transition()
+                        .attr("x", function (d) {
+                            return _x(d.x); // <-C
+                        })
+                        .attr("y", function (d) {
+                            return _y(d.y); // <-D
+                        })
+                        .attr("height", function (d) {
+                            return yStart() - _y(d.y);
+                        })
+                        .attr("width", _x.bandwidth())
+                        .attr("fill", function (d) {
+                            return _colors(d.x);
+                        });
+                }
+
+                function xStart() {
+                    return _margins.left;
+                }
+
+                function yStart() {
+                    return _height - _margins.bottom;
+                }
+
+                function xEnd() {
+                    return _width - _margins.right;
+                }
+
+                function yEnd() {
+                    return _margins.top;
+                }
+
+                function quadrantWidth() {
+                    return _width - _margins.left - _margins.right;
+                }
+
+                function quadrantHeight() {
+                    return _height - _margins.top - _margins.bottom;
+                }
+
+                _chart.width = function (w) {
+                    if (!arguments.length) return _width;
+                    _width = w;
+                    return _chart;
+                };
+
+                _chart.height = function (h) {
+                    if (!arguments.length) return _height;
+                    _height = h;
+                    return _chart;
+                };
+
+                _chart.margins = function (m) {
+                    if (!arguments.length) return _margins;
+                    _margins = m;
+                    return _chart;
+                };
+
+                _chart.colors = function (c) {
+                    if (!arguments.length) return _colors;
+                    _colors = c;
+                    return _chart;
+                };
+
+                _chart.x = function (x) {
+                    if (!arguments.length) return _x;
+                    _x = x;
+                    return _chart;
+                };
+
+                _chart.y = function (y) {
+                    if (!arguments.length) return _y;
+                    _y = y;
+                    return _chart;
+                };
+
+                _chart.setSeries = function (series) {
+                    _data = series;
+                    return _chart;
+                };
+
+                _chart.div = function (d) {
+                    if (!arguments.length) return _div;
+                    _div = d;
+                    return _chart;
+                };
+
+                return _chart;
+            }
+
+            function barChartApilada() {
+                var _chart = {};
+
+                var _width = 600, _height = 250,
+                    _margins = { top: 30, left: 30, right: 30, bottom: 30 },
+                    _x, _y,
+                    _data = [],
+                    _colors = d3.scaleOrdinal(d3.schemeSet3),
+                    _svg,
+                    _bodyG,
+                    _div;
+
+                _chart.render = function () {
+                    _svg = d3.select(_div).select('svg');
+                    if (_svg.empty()) {
+                        _svg = d3.select(_div).append("svg")
+                            .attr("height", _height)
+                            .attr("width", _width);
+
+                        renderAxes(_svg);
+
+                        defineBodyClip(_svg);
+                    }
+
+                    renderBody(_svg);
+                };
+
+                function renderAxes(svg) {
+                    var axesG = svg.append("g")
+                        .attr("class", "axes");
+
+                    var xAxis = d3.axisBottom()
+                        .scale(_x.range([0, quadrantWidth()]));
+
+                    var yAxis = d3.axisLeft()
+                        .scale(_y.range([quadrantHeight(), 0]));
+
+                    axesG.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", function () {
+                            return "translate(" + xStart() + "," + yStart() + ")";
+                        })
+                        .call(xAxis);
+
+                    axesG.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", function () {
+                            return "translate(" + xStart() + "," + yEnd() + ")";
+                        })
+                        .call(yAxis);
+                }
+
+                function defineBodyClip(svg) {
+                    var padding = 5;
+
+                    svg.append("defs")
+                        .append("clipPath")
+                        .attr("id", _div.replace('#', '') + "-clip")
+                        .append("rect")
+                        .attr("x", 0)
+                        .attr("y", 0)
+                        .attr("width", quadrantWidth())
+                        .attr("height", quadrantHeight());
+                }
+
+                function renderBody(svg) {
+                    if (!_bodyG)
+                        _bodyG = svg.append("g")
+                            .attr("class", "body")
+                            .attr("transform", "translate("
+                                + xStart()
+                                + ","
+                                + yEnd() + ")")
+                            .attr("clip-path", "url(" + _div + "-clip)");
+
+                    renderBars();
+                }
+
+                function renderBars() {
+                    var padding = Math.floor(quadrantWidth() / _data.length) * .05; // <-A
+                    var sclx = _x.range([0, quadrantWidth()]);
+                    var scly = _y.range([0, quadrantHeight()]);
+
+                    var barsA = _bodyG.selectAll("rect.barA").data(_data);
+                    barsA.enter()
+                        .append("rect")
+                        .on('mouseover', function (d) {
+                            var divTooltip = d3.select('#divTooltip');
+                            divTooltip
+                                .style('heigth', '100px')
+                                .style('width', '100px')
+                                .style('left', d3.event.pageX + 5 + 'px')
+                                .style('top', d3.event.pageY + 5 + 'px')
+                                .style('display', 'inline');
+
+                            divTooltip.text(formatNum(d.numCorrectas) + ' - ' + formatPor(d.porcCorrectas) + '%');
+                        })
+                        .on('mouseout', function (d) {
+                            var divTooltip = d3.select('#divTooltip');
+                            divTooltip.style('display', 'none');
+                        })
+                        .merge(barsA)
+                        .attr("class", "barA")
+                        .transition()
+                        .attr("x", function (d) {
+                            return sclx(d.x); // <-C
+                        })
+                        .attr("y", function (d) {
+                            return scly(100 - d.a);// <-D
+                        })
+                        .attr("height", function (d) {
+                            return scly(d.a);
+                        })
+                        .attr("width", _x.bandwidth())
+                        .attr("fill", function (d) {
+                            return 'green';
+                        })
+                        ;
+
+
+
+                    //var textA = _bodyG.selectAll("text.textA")
+                    //    .data(_data);
+                    //textA.enter()
+                    //    .append("text") // <-B
+                    //    .merge(textA)
+                    //    .attr("class", "textA")
+                    //    .transition()
+                    //    .attr("x", function (d) {
+                    //        return sclx(d.x); // <-C
+                    //    })
+                    //    .attr("y", function (d) {
+                    //        return (scly(100 - d.a))*1.5;// <-D
+                    //    })
+                    //    .style("text-anchor", "end")
+                    //    .attr("dx", "-.8em")
+                    //    .attr("dy", ".15em")
+                    //    .attr("font-family", "sans-serif")
+                    //    .attr("font-size", '.8rem')
+                    //    .attr("fill", 'white')
+                    //    //.attr("transform","rotate(90)")
+                    //    .text(function (d) { return d.porcCorrectas+'%';})
+                    //    ;
+
+                    var barsB = _bodyG.selectAll("rect.barB")
+                        .data(_data);
+                    barsB.enter()
+                        .append("rect") // <-B
+                        .on('mouseover', function (d) {
+                            var divTooltip = d3.select('#divTooltip');
+                            divTooltip
+                                .style('heigth', '100px')
+                                .style('width', '100px')
+                                .style('left', d3.event.pageX + 5 + 'px')
+                                .style('top', d3.event.pageY + 5 + 'px')
+                                .style('display', 'inline');
+
+                            divTooltip.text(formatNum(d.numErroneas) + ' - ' + formatPor(d.porcErroneas) + '%');
+                        })
+                        .on('mouseout', function (d) {
+                            var divTooltip = d3.select('#divTooltip');
+                            divTooltip.style('display', 'none');
+                        })
+                        .merge(barsB)
+                        .attr("class", "barB")
+                        .transition()
+                        .attr("x", function (d) {
+                            return sclx(d.x); // <-C
+                        })
+                        .attr("y", function (d) {
+                            return scly(100 - d.b) - scly(d.a); // <-D
+                        })
+                        .attr("height", function (d) {
+                            return scly(d.b);
+                        })
+                        .attr("width", _x.bandwidth())
+                        .attr("fill", function (d) {
+                            return 'red';
+                        });
+
+                    var barsC = _bodyG.selectAll("rect.barC")
+                        .data(_data);
+                    barsC.enter()
+                        .append("rect") // <-B
+                        .on('mouseover', function (d) {
+                            var divTooltip = d3.select('#divTooltip');
+                            divTooltip
+                                .style('heigth', '100px')
+                                .style('width', '100px')
+                                .style('left', d3.event.pageX + 5 + 'px')
+                                .style('top', d3.event.pageY + 5 + 'px')
+                                .style('display', 'inline');
+
+                            divTooltip.text(formatNum(d.numSinContestar) + ' - ' + formatNum(d.porcSinContestar) + '%');
+                        })
+                        .on('mouseout', function (d) {
+                            var divTooltip = d3.select('#divTooltip');
+                            divTooltip.style('display', 'none');
+                        })
+                        .merge(barsC)
+                        .attr("class", "barC")
+                        .transition()
+                        .attr("x", function (d) {
+                            return sclx(d.x); // <-C
+                        })
+                        .attr("y", function (d) {
+                            return scly(100 - d.b) - scly(d.a) - scly(d.c); // <-D
+                        })
+                        .attr("height", function (d) {
+                            //var escala = _y.range([0, quadrantHeight()]);
+                            return scly(d.c);
+                        })
+                        .attr("width", _x.bandwidth())
+                        .attr("fill", function (d) {
+                            return 'gray';
+                        });
+                }
+
+                function xStart() {
+                    return _margins.left;
+                }
+
+                function yStart() {
+                    return _height - _margins.bottom;
+                }
+
+                function xEnd() {
+                    return _width - _margins.right;
+                }
+
+                function yEnd() {
+                    return _margins.top;
+                }
+
+                function quadrantWidth() {
+                    return _width - _margins.left - _margins.right;
+                }
+
+                function quadrantHeight() {
+                    return _height - _margins.top - _margins.bottom;
+                }
+
+                _chart.width = function (w) {
+                    if (!arguments.length) return _width;
+                    _width = w;
+                    return _chart;
+                };
+
+                _chart.height = function (h) {
+                    if (!arguments.length) return _height;
+                    _height = h;
+                    return _chart;
+                };
+
+                _chart.margins = function (m) {
+                    if (!arguments.length) return _margins;
+                    _margins = m;
+                    return _chart;
+                };
+
+                _chart.colors = function (c) {
+                    if (!arguments.length) return _colors;
+                    _colors = c;
+                    return _chart;
+                };
+
+                _chart.x = function (x) {
+                    if (!arguments.length) return _x;
+                    _x = x;
+                    return _chart;
+                };
+
+                _chart.y = function (y) {
+                    if (!arguments.length) return _y;
+                    _y = y;
+                    return _chart;
+                };
+
+                _chart.setSeries = function (series) {
+                    _data = series;
+                    return _chart;
+                };
+
+                _chart.div = function (d) {
+                    if (!arguments.length) return _div;
+                    _div = d;
+                    return _chart;
+                };
+
+                return _chart;
+            }
+
+        });</script>
+}

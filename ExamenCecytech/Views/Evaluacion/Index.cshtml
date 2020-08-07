@@ -1,0 +1,87 @@
+﻿
+@{ ViewData["Title"] = "Evaluación"; }
+
+<div class="row">
+    @await Html.PartialAsync("MenuLateralEvaluacion", (string)ViewBag.Accion)
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h4><strong>INSTRUCCIONES PARA RESOLVER LA EVALUACI&Oacute;N DIAGN&Oacute;STICA</strong></h4>
+        <p>
+            El material consta de un cuadernillo de preguntas y una hoja de respuestas. Antes de contestar
+            el examen, lee las siguientes indicaciones:
+        </p>
+        <ol>
+            <li>No maltrates la hoja de respuestas.</li>
+            <li>Utiliza lápiz para contestar el examen (No. 2 o 2½).</li>
+            <li>
+                En la parte superior de la hoja de respuestas anota los siguiente datos de identificaci&oacute;n:
+                <ol type="a">
+                    <li>Tu nombre completo: Apellido paterno, apellido materno y nombre(s).</li>
+                    <li>
+                        La clave del g&eacute;nero al que perteneces
+                        <ol>
+                            <li>Hombre</li>
+                            <li>Mujer</li>
+                        </ol>
+                    </li>
+                    <li>Tu edad en a&ntilde;os cumplidos sin meses</li>
+                    <li>
+                        La clave de tu promedio de secundaria
+                        <ol type="1">
+                            <li>de 6.0 a 6.5</li>
+                            <li>de 6.6 a 7.0</li>
+                            <li>de 7.1 a 7.5</li>
+                            <li>de 7.6 a 8.0</li>
+                            <li>de 8.1 a 8.5</li>
+                            <li>de 8.6 a 9.0</li>
+                            <li>de 9.1 a 9.5</li>
+                            <li>de 9.6 a 10</li>
+                        </ol>
+                    </li>
+                    <li>Nombre de la escuela secundaria de procedencia</li>
+                    <li>
+                        La clave del tipo de secundaria
+                        <ol type="1">
+                            <li>Secundaria General</li>
+                            <li>Secundaria T&eacute;cnica</li>
+                            <li>Secundaria para trabajadores</li>
+                            <li>Secundaria comunitaria</li>
+                            <li>Telesecundaria</li>
+                            <li>Otra</li>
+                        </ol>
+                    </li>
+                    <li>
+                        La clave del tipo de sostenimiento de la secundaria
+                        <ol type="1">
+                            <li>Federal</li>
+                            <li>Estatal</li>
+                            <li>Particular</li>
+                        </ol>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                Este cuadernillo te servir&aacute; &uacute;nicamente para leer las preguntas, por lo que
+                <strong>no debes hacer anotaciones</strong> en &eacute;l.
+            </li>
+            <li>
+                Las preguntas tienen cuatro opciones de respuesta, indicadas con las letras A,B,C y D;
+                s&oacute;lo una es la respuesta correcta.
+            </li>
+            <li>Lee cuidadosamente cada pregunta y elige la respuesta que consideres correcta.</li>
+            <li>
+                Deberás registrar tu respuesta en la hoja de repuestas, cuidando de rellenar una sola
+                opción por pregunta. Si marcas más de una opción se invalida tu respuesta. No
+                marques hasta que estés seguro de tu respuesta. Si quieres cambiar tu respuesta,
+                asegúrate de borrar completamente la marca que deseas cancelar, sin maltratar la
+                hoja de respuestas. Asegúrate, que el número de la pregunta y la respuesta coincidan.
+            </li>
+            <li>
+                No contestes las preguntas al azar, porque las respuestas incorrectas afectarán tu
+                puntuación. Si no sabes cuál es la respuesta correcta de alguna pregunta, es preferible
+                que no marques ninguna.
+            </li>
+            <li>El uso de la calculadora está prohibido.</li>
+        </ol>
+    </div>
+</div>
+

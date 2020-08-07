@@ -1,0 +1,133 @@
+﻿@model MisDatosViewModel
+@{
+    ViewData["Title"] = "Mis Datos";
+}
+
+<div class="container">
+    <div class="row">
+        @await Html.PartialAsync("MenuLateralEvaluacion", (string)ViewBag.Accion)
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <form asp-action="MisDatos" method="post">
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label for="Ficha">Ficha</label>
+                        <input type="text" class="form-control" value="@Model.Ficha" disabled />
+                        <input type="hidden" name="Ficha" value="@Model.Ficha" />
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="Grupo">Grupo</label>
+                        <input type="text" class="form-control" value="@Model.Grupo" disabled />
+                        <input type="hidden" name="Grupo" value="@Model.Grupo" />
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="Plantel">Plantel</label>
+                        <input type="text" class="form-control" value="@Model.Plantel" disabled />
+                        <input type="hidden" name="Plantel" value="@Model.Plantel" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label asp-for="Paterno" class="control-label"></label>
+                        <input asp-for="Paterno" class="form-control" />
+                        <span asp-validation-for="Paterno" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label asp-for="Materno" class="control-label"></label>
+                        <input asp-for="Materno" class="form-control" />
+                        <span asp-validation-for="Materno" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label asp-for="Nombre" class="control-label"></label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label class="control-label">Genero</label>
+                        <label class="checkbox" for="generoMasculino">
+                            <input type="radio" id="generoMasculino" name="genero" value="M" @(Model.Genero == "M" ? "checked" : "") />
+                            Masculino
+                        </label>
+                        <label class="checkbox" for="generoFemenino">
+                            <input type="radio" id="generoFemenino" name="genero" value="F" @(Model.Genero == "F" ? "checked" : "") />
+                            Femenino
+                        </label>
+                        <span asp-validation-for="Genero" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="edad">Edad (años cumplidos)</label>
+                        <input class="form-control" type="number" id="edad" name="edad" value="@Model.Edad" />
+                        <span asp-validation-for="Edad" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="promedioSecundaria">Promedio de Secundaria</label>
+                        <input class="form-control" type="number" id="promedioSecundaria" name="promedioSecundaria" value="@Model.PromedioSecundaria" />
+                        <span asp-validation-for="PromedioSecundaria" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col">
+                        <label for="nombreSecundaria">Nombre del Plantel Educativo de procedencia (secundaria)</label>
+                        <input class="form-control" type="text" id="nombreSecundaria" name="nombreSecundaria" value="@Model.NombreSecundaria" />
+                        <span asp-validation-for="NombreSecundaria" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-6">
+                        <label class="control-label">Tipo de secundaria</label>
+                        <span asp-validation-for="TipoSecundaria" class="text-danger"></span>
+                        <label class="checkbox" for="tipoSecundariaGral">
+                            <input type="radio" id="tipoSecundariaGral" name="tipoSecundaria" value="SECUNDARIA GENERAL" @(Model.TipoSecundaria == "SECUNDARIA GENERAL" ? "checked" : "") />
+                            Secundaria General
+                        </label>
+                        <label class="checkbox" for="tipoSecundariaTec">
+                            <input type="radio" id="tipoSecundariaTec" name="tipoSecundaria" value="SECUNDARIA TECNICA" @(Model.TipoSecundaria == "SECUNDARIA TECNICA" ? "checked" : "") />
+                            Secundaria Tecnica
+                        </label>
+                        <label class="checkbox" for="tipoSecundariaTrab">
+                            <input type="radio" id="tipoSecundariaTrab" name="tipoSecundaria" value="SECUNDARIA PARA TRABAJADORES" @(Model.TipoSecundaria == "SECUNDARIA PARA TRABAJADORES" ? "checked" : "") />
+                            Secundaria para trabajadores
+                        </label>
+                        <label class="checkbox" for="tipoSecundariaCom">
+                            <input type="radio" id="tipoSecundariaCom" name="tipoSecundaria" value="SECUNDARIA COMUNITARIA" @(Model.TipoSecundaria == "SECUNDARIA COMUNITARIA" ? "checked" : "") />
+                            Secundaria comunitaria
+                        </label>
+                        <label class="checkbox" for="tipoSecundariaOtra">
+                            <input type="radio" id="tipoSecundariaOtra" name="tipoSecundaria" value="OTRA" @(Model.TipoSecundaria == "OTRA" ? "checked" : "") />
+                            Otra
+                        </label>
+                        <input type="text" name="DescripcionOtraSecundaria" value="@Model.DescripcionOtraSecundaria" />
+                        <span asp-validation-for="DescripcionOtraSecundaria" class="text-danger"></span>
+
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label class="control-label">Sostenimiento</label>
+                        <span asp-validation-for="TipoSostenimientoSecundaria" class="text-danger"></span>
+                        <div class="input-group">
+                            <label class="checkbox" for="sostenimientoFed">
+                                <input type="radio" id="sostenimientoFed" name="TipoSostenimientoSecundaria" value="FEDERAL" @(Model.TipoSostenimientoSecundaria == "FEDERAL" ? "checked" : "") />
+                                Federal
+                            </label>
+                            <label class="checkbox" for="sostenimientoEst">
+                                <input type="radio" id="sostenimientoEst" name="TipoSostenimientoSecundaria" value="ESTATAL" @(Model.TipoSostenimientoSecundaria == "ESTATAL" ? "checked" : "") />
+                                Estatal
+                            </label>
+                            <label class="checkbox" for="sostenimientoPart">
+                                <input type="radio" id="sostenimientoPart" name="TipoSostenimientoSecundaria" value="PARTICULAR (RVOE)" @(Model.TipoSostenimientoSecundaria == "PARTICULAR (RVOE)" ? "checked" : "") />
+                                Particular (RVOE)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="form-group col">
+                        <input type="submit" value="Guardar Cambios" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+﻿@model IEnumerable<Plantel>
+@{ ViewData["Title"] = "Estadistica"; }
+
+<div class="row">
+    <div class="col text-center">
+        <h2>Indice Estad&iacute;sticas</h2>
+    </div>
+</div>
+@*<div class="row">
+        <div class="col">
+            <h3>Aspectos Generales</h3>
+        </div>
+    </div>*@
+<div class="row">
+    <div class="col">
+        <div class="list-group">
+            <div class="list-group-item"><a asp-action="Filtros">Estadistica con Filtros</a></div>
+            @foreach (var item in Model)
+            {
+<div class="list-group-item"><a asp-action="Plantel" asp-route-id="@item.ClavePlantel">@item.Nombre</a></div>            }
+        </div>
+    </div>
+</div>

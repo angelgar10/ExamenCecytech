@@ -1,0 +1,46 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@model LoginViewModel
+@inject SignInManager<Aspirante> SignInManager
+
+@{ ViewData["Title"] = "Inicio de sesión"; }
+
+<h2>@ViewData["Title"]</h2>
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                <hr />
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label for="Email">Numero control (Exclusivo alumnos)</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="Password">Contrase&ntilde;a</label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-secondary" type="submit" class="btn btn-default">Iniciar Sesi&oacute;n</button>
+                </div>
+            </form>
+        </section>
+    </div>
+    @*<div class="col-md-4">
+
+        <form asp-action="ExternalLogin" asp-route-provider="Google" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+            <hr />
+            <h2>Dar click aqui si tienes correo en @@cecytechihuahua.edu.mx</h2>
+            <p>Loguear con cuenta del dominio cecytechihuahua.edu.mx</p>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit" class="btn btn-default">Iniciar Sesi&oacute;n con tu cuenta de cecytech</button>
+            </div>
+        </form>
+    </div>*@
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

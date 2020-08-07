@@ -1,0 +1,30 @@
+﻿@model string
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Identity;
+
+@inject ApplicationDbContext _context
+@inject SignInManager<Aspirante> SignInManager
+@inject UserManager<Aspirante> UserManager
+
+
+    <div class="col-sm-3 col-md-2 sidebar">
+        <ul class="nav nav-sidebar">
+            <li class=@(Model=="Index" ? "active":"")><a asp-action="Index">INSTRUCCIONES</a></li>
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <li class=@(Model == "MisDatos" ? "active" : "")><a asp-action="MisDatos">MIS DATOS</a></li>
+                    @foreach (var item in _context.Competencias.AsNoTracking().Include(c => c.Preguntas))
+                    {
+                        <li class=@(Model == item.Nombre ? "active" : "")>
+                            <a asp-action="Competencia" asp-route-id="@item.Nombre">
+                                @item.Nombre
+                                <label class="label label-success">
+                                @_context.RespuestasEvaluaciones.Include(re => re.RespuestaPregunta).Where(re => re.AspiranteId == int.Parse(UserManager.GetUserId(User)) && re.CompetenciaId == item.CompetenciaId).Count() / @item.Preguntas.Count()
+                                </label>
+                            </a>
+                        </li>
+                    }
+                <li class=@(Model == "Resumen" ? "active" : "")><a asp-action="Resumen">RESUMEN</a></li>
+            }
+        </ul>
+    </div>

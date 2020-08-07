@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<Aspirante> SignInManager
+@inject UserManager<Aspirante> UserManager
+@model LoginViewModel
+@inject SignInManager<Aspirante> SignInManager
+
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+
+@if (!SignInManager.IsSignedIn(User))
+{
+    <div class="row">
+        <form asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <label class="col-md-3">Número de control / correo electrónico</label>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+            <label class="col-md-2">Contrase&ntilde;a</label>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-default">Iniciar Sesi&oacute;n</button>
+            </div>
+        </form>
+    </div>
+}
+
+<img src="~/images/Logo1.png" alt="Logo1" class="img-responsive" />

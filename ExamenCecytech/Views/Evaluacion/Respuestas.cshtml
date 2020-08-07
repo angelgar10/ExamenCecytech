@@ -1,0 +1,58 @@
+﻿@model RespuestaPreguntaViewModel
+
+<div class="row">
+    <div class="col">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="label label-primary">@Model.NumeroPregunta</span>&nbsp;@Html.Raw(Model.Texto)
+            </div>
+            <div class="panel-body">
+                @if (TempData["MensajeErrorPregunta" + Model.PreguntaId.ToString().PadLeft(3, '0')] != null)
+                {
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <strong>Error pregunta @Model.NumeroPregunta!</strong>
+                                @(TempData["MensajeErrorPregunta" + Model.PreguntaId.ToString().PadLeft(3, '0')])
+                            </div>
+                        </div>
+                    </div>
+                }
+                <form asp-action="Respuesta" method="post">
+                    <input type="hidden" name="CompetenciaId" value="@Model.CompetenciaId" />
+                    <input type="hidden" name="PreguntaId" value="@Model.PreguntaId" />
+                    <input type="hidden" name="AspiranteId" value="@Model.AspiranteId" />
+                    <input type="hidden" name="NombreCompetencia" value="@Model.NombreCompetencia" />
+                    <input type="hidden" name="BackUrl" value="@(Model.BackUrl)" />
+                    <div class="form-group">
+                        @foreach (var respuesta in Model.Respuestas)
+                        {
+                            string id = $"pregunta{Model.PreguntaId.ToString().PadLeft(3, '0')}";
+                            bool elegida = Model.RespuestaIdSeleccionada == respuesta.RespuestaId;
+
+                            <label class="checkbox" for="@(id + "-" + respuesta.RespuestaId)">
+                                <input type="radio" id="@(id + "-" + respuesta.RespuestaId)" name="RespuestaId" value="@respuesta.RespuestaId" @(elegida ? "checked" : "") />
+                                @Html.Raw(respuesta.Texto)
+                            </label>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-success" value="Enviar Respuesta" />
+                    </div>
+                </form>
+                <form asp-action="BorrarRespuesta" method="post">
+                    <input type="hidden" name="RespuestaId" value="@Model.RespuestaIdSeleccionada" />
+                    <input type="hidden" name="PreguntaId" value="@Model.PreguntaId" />
+                    <input type="hidden" name="BackUrl" value="@(Model.BackUrl)" />
+                    <input type="hidden" name="NombreCompetencia" value="@Model.NombreCompetencia" />
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-danger" value="Borrar Respuesta" @(Model.RespuestaIdSeleccionada == null ? "disabled" : "") />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

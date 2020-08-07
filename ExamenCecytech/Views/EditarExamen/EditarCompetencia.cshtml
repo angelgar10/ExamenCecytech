@@ -1,0 +1,106 @@
+﻿@model Competencia
+
+@{ ViewData["Title"] = "Editar Competencia"; }
+
+<div class="container">
+    <h2>EditarCompetencia</h2>
+    <br />
+    <div class="row">
+        <div class="col-12">
+            <form asp-action="EditarCompetencia" asp-route-id="@Model.CompetenciaId">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <input type="hidden" asp-for="CompetenciaId" />
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="TiempoParaResolver" class="control-label"></label>
+                    <input asp-for="TiempoParaResolver" class="form-control" />
+                    <span asp-validation-for="TiempoParaResolver" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LecturaPrevia" class="control-label"></label>
+                    <textarea asp-for="LecturaPrevia" class="form-control" rows="25"></textarea>
+                    <span asp-validation-for="LecturaPrevia" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Guardar" class="btn btn-success" />
+                    <a class="btn btn-danger" asp-action="Index">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <a class="btn btn-info" asp-action="Index"><span class="glyphicon glyphicon-arrow-left"></span>&nbsp;Lista Competencias</a>
+        <br />
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <br />
+            <a class="btn btn-primary" asp-action="CrearPregunta" asp-route-id="@Model.CompetenciaId"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Crear Pregunta</a>
+            <br />
+
+            <table class="table table-sm table-bordered table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th>Numero</th>
+                        <th>Orden 1</th>
+                        <th>Orden 2</th>
+                        <th>Texto</th>
+                        <th>Lectura Previa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var preg in Model.Preguntas.OrderBy(p => p.NumeroPregunta))
+                    {
+        <tr>
+            <td><a class="btn btn-primary" asp-action="EditarPregunta" asp-route-id="@preg.PreguntaId">Editar Preg. @preg.NumeroPregunta</a></td>
+            <td>@preg.Orden1</td>
+            <td>@preg.Orden2</td>
+            <td>@Html.Raw(System.Web.HttpUtility.HtmlDecode(preg.Texto))</td>
+            <td>@Html.Raw(System.Web.HttpUtility.HtmlDecode(preg.LecturaPrevia))</td>
+        </tr>
+                        <tr>
+                            <td>Respuestas @preg.NumeroPregunta</td>
+                            <td colspan="4">
+                                <div class="col-sm-6">
+                                    <table class="table table-condensed table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <td>ClaveCosdac</td>
+                                                <td>Texto</td>
+                                                <td>Orden 1</td>
+                                                <td>Orden 2</td>
+                                                <td>Valor</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var resp in preg.RespuestasPregunta)
+                                            {
+                            <tr>
+                                <td>@resp.ClaveCOSDAC</td>
+                                <td>@Html.Raw(System.Web.HttpUtility.HtmlDecode(resp.Texto))</td>
+                                <td>@resp.Orden1</td>
+                                <td>@resp.Orden2</td>
+                                <td>@resp.Valor</td>
+                            </tr>}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <br />
+        <a class="btn btn-primary" asp-action="CrearPregunta" asp-route-id="@Model.CompetenciaId"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Crear Pregunta</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

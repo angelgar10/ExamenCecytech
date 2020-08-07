@@ -1,0 +1,69 @@
+﻿@model IEnumerable<PlantelViewModel>
+
+@{ ViewData["Title"] = "Lista Planteles"; }
+
+<h2>Lista de Planteles</h2>
+
+<table class="table table-condensed table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Plantel</th>
+            <th>Administradores</th>
+            <th>Numero Grupos</th>
+            <th>Evaluaciones Expedidas</th>
+            <th>Evaluaciones Pendientes</th>
+            <th>Evaluaciones Aplicadas</th>
+            <th>Avance</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+<tr class="text-right">
+    <td class="text-left">
+        <a class="btn btn-link" asp-action="DetallesPlantel" asp-route-clavePlantel="@item.ClavePlantel">@item.ClavePlantel @item.Plantel</a>
+    </td>
+    <td>
+        <div class="list-group text-left">
+            @foreach (var admin in item.AdministradoresPlantel)
+            {
+<div class="list-group-item">
+    <div class="list-group-item-heading">@admin</div>
+</div>}
+        </div>
+    </td>
+    <td>
+        @item.Grupos.ToString("#,##0")
+    </td>
+    <td>@item.EvaluacionesExpedidas.ToString("#,##0")</td>
+    <td>@item.EvaluacionesPendientes.ToString("#,##0")</td>
+    <td>@item.EvaluacionesAplicadas.ToString("#,##0")</td>
+    <td class="col-sm-3">
+        <div class="progress">
+            <div class="progress-bar progress-bar-@item.Color" role="progressbar" aria-valuenow="@item.Avance" aria-valuemin="0" aria-valuemax="100" style="@($"width:{item.Avance}%")">
+                @item.Avance.ToString("##0.##")%
+            </div>
+        </div>
+    </td>
+</tr>}
+    </tbody>
+    <tfoot>
+        <tr class="text-right">
+            <td>@Model.Count().ToString("#,##0") Planteles</td>
+            <td></td>
+            <td>@Model.Sum(p => p.Grupos).ToString("#,##0")</td>
+            <td>@Model.Sum(p => p.EvaluacionesExpedidas).ToString("#,##0")</td>
+            <td>@Model.Sum(p => p.EvaluacionesPendientes).ToString("#,##0")</td>
+            <td>@Model.Sum(p => p.EvaluacionesAplicadas).ToString("#,##0")</td>
+            <td class="col-sm-3">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="@Model.Average(p => p.Avance)" aria-valuemin="0" aria-valuemax="100" style="@($"width:{Model.Average(p => p.Avance)}%")">
+                        @Model.Average(p => p.Avance).ToString("##0.##")%
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+

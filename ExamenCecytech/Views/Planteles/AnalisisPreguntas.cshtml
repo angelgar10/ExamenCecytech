@@ -1,0 +1,50 @@
+﻿@model EstadisticaExamen[]
+
+<table class="table table-bordered table-striped table-condensed">
+    <caption>@Model.First().Titulo</caption>
+    <thead>
+        <tr>
+            <th>Competencia</th>
+            <th>Numero Pregunta</th>
+            <th>Texto</th>
+            <th>Sin Contestar</th>
+            <th>Respuestas</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Length; i++)
+        {
+
+@for (int j = 0; j < Model[i].Preguntas.Length; j++)
+{
+<tr>
+    <td>@Model[i].NombreCompetencia</td>
+    <td>@Model[i].Preguntas[j].NumeroPregunta</td>
+    <td>@Html.Raw(Model[i].Preguntas[j].Texto)</td>
+    <td>@Model[i].Preguntas[j].SinContestar</td>
+    <td>
+        <table class="table table-condensed table-bordered">
+            <caption> <div id="@Model[i].PrefijoGraficas-@Model[i].Preguntas[j]?.NumeroPregunta"></div></caption>
+            <thead>
+                <tr>
+                    <td>Letra</td>
+                    <td>Texto</td>
+                    <td>Correcta</td>
+                    <td>Frecuencia</td>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int k = 0; k < Model[i].Preguntas[j]?.Respuestas?.Length; k++)
+                {
+<tr @(Model[i].Preguntas[j].Respuestas[k].Correcta ? "class=bg-success" : "class=bg-secondary")>
+    <td>@Model[i].Preguntas[j].Respuestas[k].Letra</td>
+    <td>@Html.Raw(Model[i].Preguntas[j].Respuestas[k].Texto)</td>
+    <td>@Model[i].Preguntas[j].Respuestas[k].Correcta</td>
+    <td>@Model[i].Preguntas[j].Respuestas[k].Frecuencia</td>
+</tr>}
+            </tbody>
+        </table>
+    </td>
+</tr>}}
+    </tbody>
+</table>

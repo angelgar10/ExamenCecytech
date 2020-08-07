@@ -1,0 +1,72 @@
+﻿@model CompetenciaPreguntasRespuestasViewModel
+
+@{
+    ViewData["Title"] = $"{Model.Competencia.Nombre}";
+}
+
+<div class="container">
+    <div class="row ">
+        @await Html.PartialAsync("MenuLateralEvaluacion", Model.Competencia.Nombre)
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            @if (TempData["MensajeError"] != null)
+            {
+                <div class="row">
+                    <div class="col">
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <strong>Error!</strong>
+                            @(TempData["MensajeError"]))
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col text-center text-uppercase"><h3>Competencia @Model.Competencia.Nombre</h3></div>
+            </div>
+            <div class="row">
+                <div class="col text-right">Tiempo para resolver: @Model.Competencia.TiempoParaResolver minutos</div>
+            </div>
+            @if (Model.Competencia.LecturaPrevia != null)
+            {
+
+                <div class="row">
+                    <div class="col">
+                        @Html.Raw(System.Web.HttpUtility.HtmlDecode(Model.Competencia.LecturaPrevia))
+                        @*@Html.Encode(Model.Competencia.LecturaPrevia)*@
+                    </div>
+                </div>
+
+            }
+            <hr />
+            @foreach (var item in Model.RespuestasEvaluacion)
+            {
+                <div class="row invisible">
+                    <div class="col">
+                        <a name="@($"pregunta{item.PreguntaId.ToString().PadLeft(3, '0')}")"></a>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(item.LecturaPrevia))
+                {
+                    <div class="row">
+                        <div class="col">
+
+                            @Html.Raw(item.LecturaPrevia)
+                        </div>
+                    </div>
+                }
+                item.BackUrl = $"/Evaluacion/Competencia/{Model.Competencia.Nombre}#pregunta{item.PreguntaId.ToString().PadLeft(3, '0')}";
+                item.NombreCompetencia = Model.Competencia.Nombre;
+                Html.RenderPartial("Respuestas", item);
+            }
+            <div class="row">
+                <div class="col text-right"><strong>Fin de Competencia @Model.Competencia.Nombre</strong></div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+</div>
+

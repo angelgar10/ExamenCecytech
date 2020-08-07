@@ -1,0 +1,35 @@
+﻿@model IEnumerable<Competencia>
+
+@{ ViewData["Title"] = "Editar Examen"; }
+
+<h2>
+    Lista Competencias - @ViewData["NombreExamen"] - @ViewData["TipoPlantel"]
+</h2>
+
+<p>
+    <a asp-action="CrearCompetencia" class="btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Crear Nueva Competencia</a>
+</p>
+<table class="table table-sm table-bordered table-striped">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Nombre</th>
+            <th>Tiempo para Resolver (minutos)</th>
+            <th>Lectura Previa</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+<tr>
+    <td>
+        <a asp-action="EditarCompetencia" asp-route-id="@item.CompetenciaId">Editar</a>
+        <a asp-action="BorrarCompetencia" asp-route-id="@item.CompetenciaId">Borrar</a>
+    </td>
+    <td>@item.Nombre</td>
+    <td>@item.TiempoParaResolver</td>
+    <td>@System.Web.HttpUtility.HtmlDecode(item.LecturaPrevia)</td>
+
+</tr>}
+    </tbody>
+</table>

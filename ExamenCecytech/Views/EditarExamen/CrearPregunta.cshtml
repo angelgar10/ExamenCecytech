@@ -1,0 +1,60 @@
+﻿@model Pregunta
+
+@{ ViewData["Title"] = "CrearPregunta"; }
+
+<div class="container">
+    <h2>CrearPregunta</h2>
+    <hr />
+    <div class="row">
+        <form asp-action="CrearPregunta" asp-route-id="@Model.CompetenciaId">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group row">
+                <label asp-for="CompetenciaId" class="control-label"></label>
+                <select asp-for="CompetenciaId" class="form-control" asp-items="ViewBag.CompetenciaId"></select>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-4">
+                        <label asp-for="NumeroPregunta" class="control-label"></label>
+                        <input asp-for="NumeroPregunta" class="form-control" />
+                        <span asp-validation-for="NumeroPregunta" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-4">
+                        <label asp-for="Orden1" class="control-label"></label>
+                        <input asp-for="Orden1" class="form-control" />
+                        <span asp-validation-for="Orden1" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-4">
+                        <label asp-for="Orden2" class="control-label"></label>
+                        <input asp-for="Orden2" class="form-control" />
+                        <span asp-validation-for="Orden2" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label asp-for="Texto" class="control-label"></label>
+                <textarea asp-for="Texto" class="form-control" rows="10"></textarea>
+                <span asp-validation-for="Texto" class="text-danger"></span>
+            </div>
+            <div class="form-group row">
+                <label asp-for="LecturaPrevia" class="control-label"></label>
+                <textarea asp-for="LecturaPrevia" class="form-control" rows="15"></textarea>
+                <span asp-validation-for="LecturaPrevia" class="text-danger"></span>
+            </div>
+            <div class="form-group row">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

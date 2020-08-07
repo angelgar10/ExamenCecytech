@@ -1,0 +1,31 @@
+﻿
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<Aspirante> SignInManager
+@inject UserManager<Aspirante> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    @if (User.IsInRole("Aspirante"))
+    {
+        <ul class="nav navbar-nav">
+            <li><a asp-area="" asp-controller="Evaluacion" asp-action="Index">Evaluacion</a></li>
+        </ul>
+    }
+    @if (User.IsInRole("Administrativo") || User.IsInRole("SysAdmin"))
+    {
+        <ul class="nav navbar-nav">
+            <li><a asp-area="" asp-controller="Planteles" asp-action="Index">Planteles</a></li>
+            <li><a asp-area="" asp-controller="Estadisticas" asp-action="Index">Estadisticas</a></li>
+            <li><a asp-area="" asp-controller="EditarExamen" asp-action="AgregarAlumno">Agregar Alumno</a></li>
+            <li><a asp-area="" asp-controller="Usuarios" asp-action="Index">Usuarios</a></li>
+        </ul>
+    }
+    @if (User.IsInRole("SysAdmin"))
+    {
+        <ul class="nav navbar-nav">
+            <li><a asp-area="" asp-controller="EditarExamen" asp-action="Index">Editar Examen</a></li>
+        </ul>
+    }
+}
+
