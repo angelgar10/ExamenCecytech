@@ -35,10 +35,16 @@
         </div>
     </div>
     <div class="row">
-        <div class="form-group col-sm-12">
+        <div class="form-group col-sm-6">
             <label class="control-label">Correo</label>
             <input class="form-control" type="text" name="Email" />
             <input class="form-control" type="hidden" name="PlainPass" value="1234564654" />
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="control-label">Plantel</label>
+            <select class="form-control" name="GrupoId" asp-items="ViewBag.PlantelesSelectList">
+                <option value="">-- Elige un Plantel --</option>
+            </select>
         </div>
     </div>
     <div class="row">

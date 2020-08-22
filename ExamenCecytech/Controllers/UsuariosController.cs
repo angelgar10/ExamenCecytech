@@ -6,6 +6,7 @@ using ExamenCecytech.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExamenCecytech.Controllers
@@ -38,6 +39,8 @@ namespace ExamenCecytech.Controllers
             ViewBag.Planteles = await _context.Planteles.AsNoTracking()
                 .Where( p => plantelesAsignados.Contains(p.ClavePlantel))
                 .Select(p => p.ClavePlantel).ToArrayAsync();
+
+            ViewBag.PlantelesSelectList = await PlantelesSelectList(null);
 
             ViewBag.UsuariosPlantel = await _context.UsuariosPlantel.AsNoTracking().ToListAsync();
 
@@ -81,7 +84,20 @@ namespace ExamenCecytech.Controllers
                     if (resAddUsr.Succeeded)
                     {
                         usr = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == aspirante.UserName);
+
+                        var plantel = await _context.Planteles.FirstOrDefaultAsync(p => p.PlantelId == Convert.ToInt32(aspirante.GrupoId));
+
                         ExitoMsg += $"{Environment.NewLine}El usuario {aspirante.UserName} se anadio con exito";
+
+                        var existeEnPlantel = await _context.UsuariosPlantel
+                            .Where(up => up.Id == usr.Id && up.ClavePlantel == plantel.ClavePlantel).FirstOrDefaultAsync();
+
+                        if (existeEnPlantel == null)
+                        {
+                            await _context.UsuariosPlantel
+                                .AddAsync(new UsuarioPlantel { Id = usr.Id, ClavePlantel = plantel.ClavePlantel });
+                            await _context.SaveChangesAsync();
+                        }
                     }
                     else
                     {
@@ -133,7 +149,6 @@ namespace ExamenCecytech.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
         private string PasswordAleatorio(int longitud = 8, string caracteres = "ABCDEFGHKMNPRSTUVWXYZ0123456789abcdefghkmnprstuvwxyz")
         {
             Random aleatorio = new Random((int)DateTime.Now.Ticks);
@@ -143,6 +158,26 @@ namespace ExamenCecytech.Controllers
                 pass += caracteres[aleatorio.Next(caracteres.Length - 1)];
             }
             return pass;
+        }
+        private async Task<SelectList> PlantelesSelectList(int? plantelId = null)
+        {
+            var userActive = await _userManager.GetUserAsync(User);
+
+            var plantelesAsignados = await _context.UsuariosPlantel
+                .Where(p => p.Id == userActive.Id)
+                .ToListAsync();
+
+            var lista = await _context.Planteles
+                                .AsNoTracking()
+                                .OrderBy(p => p.ClavePlantel)
+                                .Select(p => new { p.PlantelId, Grupo = $"{ p.Nombre }" })
+                                .ToListAsync();
+            return new SelectList(
+                    lista,
+                    "PlantelId",
+                    "Grupo",
+                    plantelId
+                    );
         }
     }
 }
