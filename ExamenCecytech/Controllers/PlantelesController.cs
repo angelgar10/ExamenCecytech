@@ -577,13 +577,15 @@ namespace ExamenCecytech.Controllers
                         item.ColumnaB = aspirante.Paterno.ToUpper().Trim();
                     }
 
-                    if (aspirante.Materno.Length > 12)
-                    {
-                        item.ColumnaC = aspirante.Materno.ToUpper().Trim().Substring(0, 12);
-                    }
-                    else
-                    {
-                        item.ColumnaC = aspirante.Materno.ToUpper().Trim();
+                    if (!string.IsNullOrEmpty(aspirante.Materno)) {
+                        if (aspirante.Materno.Length > 12)
+                        {
+                            item.ColumnaC = aspirante.Materno.ToUpper().Trim().Substring(0, 12);
+                        }
+                        else
+                        {
+                            item.ColumnaC = aspirante.Materno.ToUpper().Trim();
+                        }
                     }
 
                     if (aspirante.Nombre.Length > 12)
@@ -611,9 +613,11 @@ namespace ExamenCecytech.Controllers
                     {
                         aspirante.Paterno = aspirante.Paterno.Substring(0, 12);
                     }
-                    if (aspirante.Materno.Length > 12)
-                    {
-                        aspirante.Materno = aspirante.Materno.Substring(0, 12);
+                    if (!string.IsNullOrEmpty(aspirante.Materno)) {
+                        if (aspirante.Materno.Length > 12)
+                        {
+                            aspirante.Materno = aspirante.Materno.Substring(0, 12);
+                        }
                     }
                     if (aspirante.Nombre.Length > 12)
                     {
