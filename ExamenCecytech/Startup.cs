@@ -42,8 +42,6 @@ namespace ExamenCecytech
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 8;
-
-
             });
 
             services.ConfigureApplicationCookie(options =>
